@@ -1,35 +1,26 @@
 export const INITIAL_QUESTIONS = [
   {
-    content: "What is the capital of France?",
+    content: "Luật Hình sự là gì và mục đích của nó là gì?",
   },
   {
-    content: 'Who wrote "To Kill a Mockingbird"?',
+    content: 'Quyền sở hữu trí tuệ được bảo vệ như thế nào ở Việt Nam?',
   },
   {
-    content: "What is the boiling point of water in Celsius?",
+    content: "Hợp đồng lao động là gì và cần những điều kiện gì?",
   },
   {
-    content: "How many planets are there in our solar system?",
+    content: "Cổ đông có quyền và nghĩa vụ gì theo Luật doanh nghiệp?",
   },
   {
-    content: "What year did the Titanic sink?",
+    content: "Quy trình ly hôn tại Việt Nam như thế nào?",
   },
   {
-    content: "Who painted the Mona Lisa?",
+    content: "Trách nhiệm pháp lý đối với gây ô nhiễm môi trường là gì?",
   },
   {
-    content: "What is the square root of 144?",
+    content: "Tội phạm kinh tế là gì?",
   },
   {
-    content: "Who is the current President of the United States?",
-  },
-  {
-    content: "What is the tallest mountain in the world?",
-  },
-  {
-    content: "What is the chemical symbol for gold?",
-  },
-  {
-    content: "Who discovered penicillin?",
+    content: "Người tiêu dùng được bảo vệ quyền lợi như thế nào?",
   },
 ];

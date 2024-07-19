@@ -38,7 +38,7 @@ export default function ChatList({
   }, [messages]);
 
   useEffect(() => {
-    const username = localStorage.getItem("ollama_user");
+    const username = localStorage.getItem("user");
     if (username) {
       setName(username);
       setLocalStorageIsLoading(false);

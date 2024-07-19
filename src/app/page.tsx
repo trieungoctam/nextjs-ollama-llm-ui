@@ -80,7 +80,7 @@ export default function Home() {
       setOllama(newOllama);
     }
 
-    if (!localStorage.getItem("ollama_user")) {
+    if (!localStorage.getItem("user")) {
       setOpen(true);
     }
   }, [selectedModel]);
@@ -163,10 +163,10 @@ export default function Home() {
   };
 
   const onOpenChange = (isOpen: boolean) => { 
-    const username = localStorage.getItem("ollama_user")
+    const username = localStorage.getItem("user")
     if (username) return setOpen(isOpen)
 
-    localStorage.setItem("ollama_user", "Anonymous")
+    localStorage.setItem("user", "Anonymous")
     window.dispatchEvent(new Event("storage"))
     setOpen(isOpen)
   }
