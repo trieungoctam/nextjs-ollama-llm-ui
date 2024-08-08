@@ -7,16 +7,17 @@ import { AIMessage, HumanMessage } from "@langchain/core/messages";
 import { BytesOutputParser } from "@langchain/core/output_parsers";
 import { ChatRequestOptions } from "ai";
 import { Message, useChat } from "ai/react";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
+import axios from 'axios';
 
 export default function Page({ params }: { params: { id: string } }) {
   const {
     messages,
     input,
     handleInputChange,
-    handleSubmit,
+    // handleSubmit,
     isLoading,
     error,
     stop,
@@ -34,22 +35,9 @@ export default function Page({ params }: { params: { id: string } }) {
     },
   });
   const [chatId, setChatId] = React.useState<string>("");
-  const [selectedModel, setSelectedModel] = React.useState<string>(
-    getSelectedModel()
-  );
-  const [ollama, setOllama] = React.useState<ChatOllama>();
   const env = process.env.NODE_ENV;
   const [loadingSubmit, setLoadingSubmit] = React.useState(false);
-
-  useEffect(() => {
-    if (env === "production") {
-      const newOllama = new ChatOllama({
-        baseUrl: process.env.NEXT_PUBLIC_OLLAMA_URL || "http://localhost:11434",
-        model: selectedModel,
-      });
-      setOllama(newOllama);
-    }
-  }, [selectedModel]);
+  const formRef = useRef<HTMLFormElement>(null);
 
   React.useEffect(() => {
     if (params.id) {
@@ -67,7 +55,7 @@ export default function Page({ params }: { params: { id: string } }) {
   };
 
   // Function to handle chatting with Ollama in production (client side)
-  const handleSubmitProduction = async (
+  const handleSubmit = async (
     e: React.FormEvent<HTMLFormElement>
   ) => {
     e.preventDefault();
@@ -75,42 +63,44 @@ export default function Page({ params }: { params: { id: string } }) {
     addMessage({ role: "user", content: input, id: chatId });
     setInput("");
 
-    if (ollama) {
-      try {
-        const parser = new BytesOutputParser();
+    try {
+      const data = {
+        chat_id: chatId,
+        message: input
+      };
 
-        const stream = await ollama
-          .pipe(parser)
-          .stream(
-            (messages as Message[]).map((m) =>
-              m.role == "user"
-                ? new HumanMessage(m.content)
-                : new AIMessage(m.content)
-            )
-          );
+      console.log(data);
 
-        const decoder = new TextDecoder();
+      const stream = await axios.post('http://103.141.140.71:11001/api/v1/chat', data, {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        responseType: 'stream'
+      });
+      const reader = stream.data.getReader();
+      const decoder = new TextDecoder();
 
-        let responseMessage = "";
-        for await (const chunk of stream) {
-          const decodedChunk = decoder.decode(chunk);
-          responseMessage += decodedChunk;
-          setLoadingSubmit(false);
-          setMessages([
-            ...messages,
-            { role: "assistant", content: responseMessage, id: chatId },
-          ]);
-        }
-        addMessage({ role: "assistant", content: responseMessage, id: chatId });
-        setMessages([...messages]);
-
-        localStorage.setItem(`chat_${params.id}`, JSON.stringify(messages));
-        // Trigger the storage event to update the sidebar component
-        window.dispatchEvent(new Event("storage"));
-      } catch (error) {
-        toast.error("An error occurred. Please try again.");
+      let responseMessage = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        responseMessage += decoder.decode(value, { stream: true });
         setLoadingSubmit(false);
+        setMessages([
+          ...messages,
+          { role: "assistant", content: responseMessage, id: chatId },
+        ]);
       }
+      addMessage({ role: "assistant", content: responseMessage, id: chatId });
+      setMessages([...messages]);
+
+      localStorage.setItem(`chat_${chatId}`, JSON.stringify(messages));
+      // Trigger the storage event to update the sidebar component
+      window.dispatchEvent(new Event("storage"));
+    } catch (error) {
+      console.log(error);
+      toast.error("An error occurred. Please try again.");
+      setLoadingSubmit(false);
     }
   };
 
@@ -120,22 +110,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
     setMessages([...messages]);
 
-    // Prepare the options object with additional body data, to pass the model.
-    const requestOptions: ChatRequestOptions = {
-      options: {
-        body: {
-          selectedModel: selectedModel,
-        },
-      },
-    };
-
-    if (env === "production" && selectedModel !== "REST API") {
-      handleSubmitProduction(e);
-    } else {
-      // use the /api/chat route
-      // Call the handleSubmit function with the options
-      handleSubmit(e, requestOptions);
-    }
+    handleSubmit(e);
   };
 
   // When starting a new chat, append the messages to the local storage
@@ -151,7 +126,6 @@ export default function Page({ params }: { params: { id: string } }) {
     <main className="flex h-[calc(100dvh)] flex-col items-center">
       <ChatLayout
         chatId={params.id}
-        setSelectedModel={setSelectedModel}
         messages={messages}
         input={input}
         handleInputChange={handleInputChange}
@@ -162,6 +136,7 @@ export default function Page({ params }: { params: { id: string } }) {
         stop={stop}
         navCollapsedSize={10}
         defaultLayout={[30, 160]}
+        formRef={formRef}
         setMessages={setMessages}
         setInput={setInput}
       />

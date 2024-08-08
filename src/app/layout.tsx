@@ -8,7 +8,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Chatbot luật Hà Giang",
-  description: "Trả lời về dịch vụ công Hà Giang",
+  description: "Chatbot trả lời về dịch vụ công Hà Giang",
 };
 
 export const viewport = {

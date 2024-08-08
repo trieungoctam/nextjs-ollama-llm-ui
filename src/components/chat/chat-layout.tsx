@@ -35,7 +35,6 @@ export function ChatLayout({
   error,
   stop,
   chatId,
-  setSelectedModel,
   loadingSubmit,
   formRef,
   setMessages,
@@ -100,7 +99,7 @@ export function ChatLayout({
           messages={messages}
           isMobile={isMobile}
           chatId={chatId}
-          setMessages={setMessages}
+          // setMessages={setMessages}
         />
       </ResizablePanel>
       <ResizableHandle className={cn("hidden md:flex")} withHandle />
@@ -110,7 +109,6 @@ export function ChatLayout({
       >
         <Chat
           chatId={chatId}
-          setSelectedModel={setSelectedModel}
           messages={messages}
           input={input}
           handleInputChange={handleInputChange}

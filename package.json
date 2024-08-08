@@ -26,6 +26,7 @@
     "@radix-ui/react-tooltip": "^1.0.7",
     "@types/dom-speech-recognition": "^0.0.4",
     "ai": "^2.2.37",
+    "axios": "^1.7.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "emoji-mart": "^5.5.2",
