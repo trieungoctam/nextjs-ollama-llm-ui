@@ -9,7 +9,6 @@ import TextareaAutosize from "react-textarea-autosize";
 import { motion, AnimatePresence } from "framer-motion";
 import { ImageIcon, PaperPlaneIcon, StopIcon } from "@radix-ui/react-icons";
 import { Mic, SendHorizonal } from "lucide-react";
-import useSpeechToText from "@/app/hooks/useSpeechRecognition";
 
 export default function ChatBottombar({
   messages,
@@ -57,7 +56,7 @@ export default function ChatBottombar({
   }, []);
 
   return (
-    <div className="p-4 pb-7 flex justify-between w-full items-center gap-2">
+    <div className="p-4 pb-7 flex justify-between w-[75%] items-center gap-2 mx-auto">
       <AnimatePresence initial={false}>
         <div className="w-full items-center flex relative gap-2">
           <form

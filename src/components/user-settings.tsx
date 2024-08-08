@@ -81,11 +81,7 @@ export default function UserSettings() {
             </AvatarFallback>
           </Avatar>
           <div className="text-xs truncate">
-            {isLoading ? (
-              <Skeleton className="w-20 h-4" />
-            ) : (
-              name || "Anonymous"
-            )}
+            {name || "Anonymous"}
           </div>
         </Button>
       </DropdownMenuTrigger>

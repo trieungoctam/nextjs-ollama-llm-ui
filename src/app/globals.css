@@ -59,6 +59,25 @@
   }
 }
 
+@layer base {
+  ol {
+    @apply list-decimal pl-6;
+  }
+
+  ul {
+    @apply list-disc pl-6;
+  }
+}
+
+ol, ul {
+  margin: 1em 0; 
+  padding-left: 2rem; 
+}
+
+li {
+  margin-bottom: 0.5rem;
+}
+
 #scroller * {
   overflow-anchor: none;
 }

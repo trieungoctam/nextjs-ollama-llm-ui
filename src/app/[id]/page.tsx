@@ -1,7 +1,6 @@
 "use client";
 
 import { ChatLayout } from "@/components/chat/chat-layout";
-import { getSelectedModel } from "@/lib/model-helper";
 import { ChatOllama } from "@langchain/community/chat_models/ollama";
 import { AIMessage, HumanMessage } from "@langchain/core/messages";
 import { BytesOutputParser } from "@langchain/core/output_parsers";
@@ -17,7 +16,7 @@ export default function Page({ params }: { params: { id: string } }) {
     messages,
     input,
     handleInputChange,
-    // handleSubmit,
+    handleSubmit,
     isLoading,
     error,
     stop,
@@ -55,7 +54,7 @@ export default function Page({ params }: { params: { id: string } }) {
   };
 
   // Function to handle chatting with Ollama in production (client side)
-  const handleSubmit = async (
+  const handleSubmitProduction = async (
     e: React.FormEvent<HTMLFormElement>
   ) => {
     e.preventDefault();
@@ -65,26 +64,27 @@ export default function Page({ params }: { params: { id: string } }) {
 
     try {
       const data = {
-        chat_id: chatId,
+        conversation_id: chatId,
         message: input
       };
 
-      console.log(data);
-
-      const stream = await axios.post('http://103.141.140.71:11001/api/v1/chat', data, {
+      const response = await axios.post('http://103.141.140.71:11002/api/v1/chat', data, {
         headers: {
-          'Content-Type': 'application/json'
+          'Accept': 'text/event-stream',
         },
-        responseType: 'stream'
+        adapter: 'fetch',
+        responseType: 'stream',
       });
-      const reader = stream.data.getReader();
-      const decoder = new TextDecoder();
+
+      const stream = response.data;      
+
+      const reader = stream.pipeThrough(new TextDecoderStream()).getReader();
 
       let responseMessage = "";
       while (true) {
-        const { done, value } = await reader.read();
+        const { value, done } = await reader.read();
         if (done) break;
-        responseMessage += decoder.decode(value, { stream: true });
+        responseMessage += value;
         setLoadingSubmit(false);
         setMessages([
           ...messages,
@@ -110,7 +110,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
     setMessages([...messages]);
 
-    handleSubmit(e);
+    handleSubmitProduction(e);
   };
 
   // When starting a new chat, append the messages to the local storage

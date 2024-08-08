@@ -11,6 +11,7 @@ import remarkGfm from "remark-gfm";
 import { INITIAL_QUESTIONS } from "@/utils/initial-questions";
 import { Button } from "../ui/button";
 
+
 export default function ChatList({
   messages,
   input,
@@ -28,7 +29,6 @@ export default function ChatList({
   const [localStorageIsLoading, setLocalStorageIsLoading] =
     React.useState(true);
   const [initialQuestions, setInitialQuestions] = React.useState<Message[]>([]);
-
   const scrollToBottom = () => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   };
@@ -157,14 +157,24 @@ export default function ChatList({
               },
             }}
             className={cn(
-              "flex flex-col gap-2 p-4 whitespace-pre-wrap",
+              "flex flex-col gap-2 p-4",
               message.role === "user" ? "items-end" : "items-start"
             )}
           >
             <div className="flex gap-3 items-center">
               {message.role === "user" && (
                 <div className="flex items-end gap-3">
-                  <span className="bg-accent p-3 rounded-md max-w-xs sm:max-w-2xl overflow-x-auto">
+                  <span 
+                    className="bg-accent p-3 rounded-md max-w-xs sm:max-w-3xl overflow-x-auto"
+                    style={{
+                      boxShadow: `
+                        1px 1px 2px rgba(0, 0, 0, 0.05),   /* Nhẹ ở góc trên trái */
+                        -1px 1px 2px rgba(0, 0, 0, 0.05),  /* Nhẹ ở góc trên phải */
+                        -5px 5px 10px rgba(0, 0, 0, 0.2),  /* Mạnh ở góc dưới trái */
+                        1px -1px 2px rgba(0, 0, 0, 0.05)   /* Nhẹ ở góc dưới phải */
+                      `,
+                    }}
+                  >
                     {message.content}
                   </span>
                   <Avatar className="flex justify-start items-center overflow-hidden">
@@ -192,8 +202,18 @@ export default function ChatList({
                       className="object-contain dark:invert"
                     />
                   </Avatar>
-                  <span className="bg-accent p-3 rounded-md max-w-xs sm:max-w-2xl overflow-x-auto">
-                    {/* Check if the message content contains a code block */}
+                  <span
+                    className="bg-accent p-4 rounded-md max-w-xs sm:max-w-[80%] overflow-x-auto list-decimal pl-6"
+                    style={{
+                      boxShadow: `
+                        1px 1px 2px rgba(0, 0, 0, 0.05),   /* Nhẹ ở góc trên trái */
+                        -1px 1px 2px rgba(0, 0, 0, 0.05),  /* Nhẹ ở góc trên phải */
+                        1px -1px 2px rgba(0, 0, 0, 0.05),  /* Nhẹ ở góc dưới trái */
+                        5px 5px 10px rgba(0, 0, 0, 0.2)    /* Mạnh ở góc dưới phải */
+                      `,
+
+                    }}
+                  >         
                     {message.content.split("```").map((part, index) => {
                       if (index % 2 === 0) {
                         return (

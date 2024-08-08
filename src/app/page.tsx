@@ -11,8 +11,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import UsernameForm from "@/components/username-form";
-import { getSelectedModel } from "@/lib/model-helper";
-import { ChatOllama } from "@langchain/community/chat_models/ollama";
 import { AIMessage, HumanMessage } from "@langchain/core/messages";
 import { BytesOutputParser } from "@langchain/core/output_parsers";
 import { ChatRequestOptions } from "ai";
@@ -27,7 +25,7 @@ export default function Home() {
     messages,
     input,
     handleInputChange,
-    // handleSubmit,
+    handleSubmit,
     isLoading,
     error,
     stop,
@@ -75,7 +73,7 @@ export default function Home() {
   };
 
   // Function to handle chatting with Ollama in production (client side)
-  const handleSubmit = async (
+  const handleSubmitProduction = async (
     e: React.FormEvent<HTMLFormElement>
   ) => {
     e.preventDefault();
@@ -85,35 +83,34 @@ export default function Home() {
 
     try {
       const data = {
-        chat_id: chatId,
+        conversation_id: chatId,
         message: input
       };
 
-      console.log(data);
-
-      const stream = await axios.post('http://103.141.140.71:11002/api/v1/chat', data, {
+      const response = await axios.post('http://103.141.140.71:11002/api/v1/chat', data, {
         headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Headers': '*',
-          'Access-Control-Allow-Credentials': 'true'
+          'Accept': 'text/event-stream',
         },
+        adapter: 'fetch',
+        responseType: 'stream',
       });
-      console.log(stream) 
-      const reader = stream.data.getReader();
-      const decoder = new TextDecoder();
+
+      const stream = response.data;      
+
+      const reader = stream.pipeThrough(new TextDecoderStream()).getReader();
 
       let responseMessage = "";
       while (true) {
-        const { done, value } = await reader.read();
+        const { value, done } = await reader.read();
         if (done) break;
-        responseMessage += decoder.decode(value, { stream: true });
+        responseMessage += value;
         setLoadingSubmit(false);
         setMessages([
           ...messages,
           { role: "assistant", content: responseMessage, id: chatId },
         ]);
       }
+
       addMessage({ role: "assistant", content: responseMessage, id: chatId });
       setMessages([...messages]);
 
@@ -133,7 +130,7 @@ export default function Home() {
     
     setMessages([...messages]);
 
-    handleSubmit(e);
+    handleSubmitProduction(e);
   };
 
   const onOpenChange = (isOpen: boolean) => { 
